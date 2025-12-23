@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ducky Script Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0d1b2a 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            animation: fadeIn 0.8s ease-in;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            background: linear-gradient(135deg, #00d4ff, #0099cc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
+            font-weight: 700;
+            letter-spacing: 2px;
+            flex: 1;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn-header {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(0, 150, 255, 0.1));
+            border: 1px solid rgba(0, 212, 255, 0.4);
+            border-radius: 10px;
+            color: #00d4ff;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            font-size: 0.8em;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-header:hover {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.3), rgba(0, 180, 255, 0.2));
+            border-color: rgba(0, 212, 255, 0.7);
+            box-shadow: 0 0 25px rgba(0, 212, 255, 0.4);
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 350px 1fr 380px;
+            gap: 25px;
+            animation: slideUp 0.8s ease-out;
+        }
+
+        .glass-panel {
+            background: rgba(15, 25, 50, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                0 0 60px rgba(0, 212, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .glass-panel:hover {
+            border-color: rgba(0, 212, 255, 0.4);
+            box-shadow: 
+                0 12px 40px rgba(0, 212, 255, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15),
+                0 0 80px rgba(0, 212, 255, 0.15);
+        }
+
+        .buttons-section h2,
+        .editor-section h2,
+        .cheatsheet-section h2 {
+            color: #00d4ff;
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .buttons-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        .btn-command {
+            padding: 12px 14px;
+            background: linear-gradient(135deg, rgba(0, 180, 255, 0.15), rgba(0, 100, 200, 0.1));
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 10px;
+            color: #00d4ff;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            text-transform: uppercase;
+            font-size: 0.8em;
+            letter-spacing: 0.4px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-command::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn-command:hover::before {
+            left: 100%;
+        }
+
+        .btn-command:hover {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.25), rgba(0, 150, 255, 0.15));
+            border-color: rgba(0, 212, 255, 0.6);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.4), inset 0 0 15px rgba(0, 212, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .btn-command:active {
+            transform: translateY(0);
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+        }
+
+        .input-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(0, 212, 255, 0.2);
+        }
+
+        .input-section label {
+            display: block;
+            color: #00d4ff;
+            font-size: 0.8em;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 10px;
+            color: #e0e0e0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+        }
+
+        input:focus {
+            outline: none;
+            background: rgba(0, 212, 255, 0.1);
+            border-color: rgba(0, 212, 255, 0.5);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+        }
+
+        .editor-section {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .code-display {
+            flex: 1;
+            background: rgba(5, 15, 35, 0.9);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            color: #00ff88;
+            line-height: 1.6;
+            overflow-y: auto;
+            max-height: 500px;
+            white-space: pre-wrap;
+            word-break: break-word;
+            box-shadow: 
+                inset 0 0 30px rgba(0, 0, 0, 0.5),
+                0 0 40px rgba(0, 212, 255, 0.1);
+            position: relative;
+        }
+
+        .code-display::before {
+            content: '// Ducky Script Code';
+            display: block;
+            color: #0099cc;
+            margin-bottom: 15px;
+            opacity: 0.7;
+        }
+
+        .code-empty {
+            color: #666;
+            font-style: italic;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .btn-control {
+            padding: 14px 20px;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(0, 150, 255, 0.1));
+            border: 1px solid rgba(0, 212, 255, 0.4);
+            border-radius: 12px;
+            color: #00d4ff;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            font-size: 0.85em;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-control:hover {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.3), rgba(0, 180, 255, 0.2));
+            border-color: rgba(0, 212, 255, 0.7);
+            box-shadow: 0 0 25px rgba(0, 212, 255, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .code-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: rgba(0, 212, 255, 0.05);
+            border-left: 3px solid rgba(0, 212, 255, 0.3);
+            margin: 5px 0;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            color: #00ff88;
+        }
+
+        .code-line:hover {
+            background: rgba(0, 212, 255, 0.1);
+            border-left-color: rgba(0, 212, 255, 0.6);
+        }
+
+        .btn-delete-line {
+            background: rgba(255, 50, 50, 0.6);
+            color: #ff6b6b;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.75em;
+            transition: all 0.2s ease;
+            opacity: 0;
+        }
+
+        .code-line:hover .btn-delete-line {
+            opacity: 1;
+        }
+
+        .btn-delete-line:hover {
+            background: rgba(255, 50, 50, 0.9);
+        }
+
+        .cheatsheet-section {
+            overflow-y: auto;
+            max-height: 600px;
+        }
+
+        .cheat-category {
+            margin-bottom: 20px;
+        }
+
+        .cheat-category-title {
+            color: #00ffff;
+            font-weight: 700;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid rgba(0, 212, 255, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .cheat-item {
+            background: rgba(0, 212, 255, 0.08);
+            border-left: 3px solid rgba(0, 212, 255, 0.4);
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .cheat-item:hover {
+            background: rgba(0, 212, 255, 0.15);
+            border-left-color: rgba(0, 212, 255, 0.8);
+            transform: translateX(5px);
+        }
+
+        .cheat-key {
+            color: #00ffff;
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            margin-bottom: 3px;
+        }
+
+        .cheat-desc {
+            color: #a8a8a8;
+            font-size: 0.75em;
+            line-height: 1.3;
+        }
+
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 212, 255, 0.9);
+            color: #0a0e27;
+            padding: 14px 20px;
+            border-radius: 10px;
+            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.3);
+            animation: slideInUp 0.4s ease;
+            font-weight: 600;
+            display: none;
+        }
+
+        .notification.show {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .code-display::-webkit-scrollbar,
+        .cheatsheet-section::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .code-display::-webkit-scrollbar-track,
+        .cheatsheet-section::-webkit-scrollbar-track {
+            background: rgba(0, 212, 255, 0.05);
+        }
+
+        .code-display::-webkit-scrollbar-thumb,
+        .cheatsheet-section::-webkit-scrollbar-thumb {
+            background: rgba(0, 212, 255, 0.3);
+            border-radius: 5px;
+        }
+
+        .code-display::-webkit-scrollbar-thumb:hover,
+        .cheatsheet-section::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 212, 255, 0.6);
+        }
+
+        @media (max-width: 1400px) {
+            .main-content {
+                grid-template-columns: 320px 1fr 320px;
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            header {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .header-controls {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .controls {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🦆 DUCKY SCRIPT GENERATOR</h1>
+            <div class="header-controls">
+                <button class="btn-header" onclick="toggleLanguage()">🌐 РУССКИЙ</button>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <div class="glass-panel buttons-section">
+                <h2 id="cmdTitle">Команды</h2>
+                <div class="buttons-grid">
+                    <button class="btn-command" onclick="addCommand('STRING')">STRING</button>
+                    <button class="btn-command" onclick="addCommand('STRINGLN')">STRINGLN</button>
+                    <button class="btn-command" onclick="addCommand('DELAY')">DELAY</button>
+                    <button class="btn-command" onclick="addCommand('DEFAULTDELAY')">DEFAULTDELAY</button>
+                    <button class="btn-command" onclick="addCommand('ENTER')">ENTER</button>
+                    <button class="btn-command" onclick="addCommand('TAB')">TAB</button>
+                    <button class="btn-command" onclick="addCommand('ESC')">ESC</button>
+                    <button class="btn-command" onclick="addCommand('SPACE')">SPACE</button>
+                    <button class="btn-command" onclick="addCommand('BACKSPACE')">BACKSPACE</button>
+                    <button class="btn-command" onclick="addCommand('DELETE')">DELETE</button>
+                    <button class="btn-command" onclick="addCommand('UPARROW')">UPARROW</button>
+                    <button class="btn-command" onclick="addCommand('DOWNARROW')">DOWNARROW</button>
+                    <button class="btn-command" onclick="addCommand('LEFTARROW')">LEFTARROW</button>
+                    <button class="btn-command" onclick="addCommand('RIGHTARROW')">RIGHTARROW</button>
+                    <button class="btn-command" onclick="addCommand('HOME')">HOME</button>
+                    <button class="btn-command" onclick="addCommand('END')">END</button>
+                    <button class="btn-command" onclick="addCommand('PAGEUP')">PAGEUP</button>
+                    <button class="btn-command" onclick="addCommand('PAGEDOWN')">PAGEDOWN</button>
+                    <button class="btn-command" onclick="addCommand('CAPSLOCK')">CAPSLOCK</button>
+                    <button class="btn-command" onclick="addCommand('NUMLOCK')">NUMLOCK</button>
+                    <button class="btn-command" onclick="addCommand('PRINTSCREEN')">PRINTSCREEN</button>
+                    <button class="btn-command" onclick="addCommand('PAUSE')">PAUSE</button>
+                    <button class="btn-command" onclick="addCommand('INSERT')">INSERT</button>
+                    <button class="btn-command" onclick="addCommand('GUI')">GUI (WIN)</button>
+                    <button class="btn-command" onclick="addCommand('REPEAT')">REPEAT</button>
+                    <button class="btn-command" onclick="addCommand('REM')">REM</button>
+                    <button class="btn-command" onclick="addCommand('KEYDOWN')">KEYDOWN</button>
+                    <button class="btn-command" onclick="addCommand('KEYUP')">KEYUP</button>
+                </div>
+
+                <div class="input-section">
+                    <label for="customInput" id="paramLabel">Параметр:</label>
+                    <input type="text" id="customInput">
+                    <button class="btn-command" style="width: 100%" onclick="addCustom()">✨ ДОБАВИТЬ</button>
+                </div>
+            </div>
+
+            <div class="glass-panel editor-section">
+                <h2 id="codeTitle">Код</h2>
+                <div class="code-display" id="codeDisplay">
+                    <span class="code-empty">Начни добавлять команды...</span>
+                </div>
+
+                <div class="controls">
+                    <button class="btn-control" onclick="copyToClipboard()">📋 Копировать</button>
+                    <button class="btn-control" onclick="downloadCode()">⬇️ Скачать</button>
+                    <button class="btn-control" onclick="clearCode()">🗑️ Очистить</button>
+                </div>
+            </div>
+
+            <div class="glass-panel cheatsheet-section">
+                <h2 id="cheatTitle">Шпаргалка</h2>
+                <div id="cheatContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification"></div>
+
+    <script>
+        let codeLines = [];
+        let currentLang = 'ru';
+
+        const cheatsheetData = {
+            ru: [
+                {
+                    title: '📝 Комментарии',
+                    items: [
+                        { key: 'REM', desc: 'Однострочный комментарий' },
+                        { key: 'REM_BLOCK...END_REM', desc: 'Многострочный комментарий' }
+                    ]
+                },
+                {
+                    title: '⌨️ Ввод текста',
+                    items: [
+                        { key: 'STRING текст', desc: 'Вводит строку текста' },
+                        { key: 'STRINGLN текст', desc: 'Вводит текст + Enter' },
+                        { key: 'STRINGLN_BLOCK...END', desc: 'Много строк с переносами' }
+                    ]
+                },
+                {
+                    title: '⏱️ Задержки',
+                    items: [
+                        { key: 'DELAY N', desc: 'Пауза N миллисекунд' },
+                        { key: 'DEFAULTDELAY N', desc: 'Задержка по умолчанию' }
+                    ]
+                },
+                {
+                    title: '🔑 Специальные клавиши',
+                    items: [
+                        { key: 'ENTER, TAB, ESC', desc: 'Базовые клавиши' },
+                        { key: 'SPACE, BACKSPACE', desc: 'Пробел и Backspace' },
+                        { key: 'UP/DOWN/LEFT/RIGHT', desc: 'Стрелки' },
+                        { key: 'HOME, END', desc: 'Начало/конец строки' },
+                        { key: 'PAGEUP, PAGEDOWN', desc: 'Листание страницы' },
+                        { key: 'DELETE, INSERT', desc: 'Удалить и вставить' },
+                        { key: 'F1 - F24', desc: 'Функциональные клавиши' }
+                    ]
+                },
+                {
+                    title: '🔗 Комбинации клавиш',
+                    items: [
+                        { key: 'CTRL C', desc: 'Копировать' },
+                        { key: 'CTRL V', desc: 'Вставить' },
+                        { key: 'CTRL X', desc: 'Вырезать' },
+                        { key: 'CTRL Z', desc: 'Отменить' },
+                        { key: 'CTRL ALT DELETE', desc: 'Диспетчер задач' },
+                        { key: 'ALT TAB', desc: 'Переключение окон' },
+                        { key: 'ALT F4', desc: 'Закрыть окно' },
+                        { key: 'GUI R', desc: 'Открыть Run (Windows)' }
+                    ]
+                },
+                {
+                    title: '🔄 Прочее',
+                    items: [
+                        { key: 'REPEAT N', desc: 'Повторить предыдущую команду' },
+                        { key: 'KEYDOWN/KEYUP', desc: 'Удерживать/отпустить клавишу' },
+                        { key: 'CAPSLOCK, NUMLOCK', desc: 'Блокировки' }
+                    ]
+                }
+            ],
+            en: [
+                {
+                    title: '📝 Comments',
+                    items: [
+                        { key: 'REM', desc: 'Single line comment' },
+                        { key: 'REM_BLOCK...END_REM', desc: 'Multiline comment block' }
+                    ]
+                },
+                {
+                    title: '⌨️ Text Input',
+                    items: [
+                        { key: 'STRING text', desc: 'Type a string' },
+                        { key: 'STRINGLN text', desc: 'Type text + Enter' },
+                        { key: 'STRINGLN_BLOCK...END', desc: 'Multiple lines' }
+                    ]
+                },
+                {
+                    title: '⏱️ Delays',
+                    items: [
+                        { key: 'DELAY N', desc: 'Pause for N milliseconds' },
+                        { key: 'DEFAULTDELAY N', desc: 'Default delay between commands' }
+                    ]
+                },
+                {
+                    title: '🔑 Special Keys',
+                    items: [
+                        { key: 'ENTER, TAB, ESC', desc: 'Basic keys' },
+                        { key: 'SPACE, BACKSPACE', desc: 'Space and Backspace' },
+                        { key: 'UP/DOWN/LEFT/RIGHT', desc: 'Arrow keys' },
+                        { key: 'HOME, END', desc: 'Home/End' },
+                        { key: 'PAGEUP, PAGEDOWN', desc: 'Page Up/Down' },
+                        { key: 'DELETE, INSERT', desc: 'Delete and Insert' },
+                        { key: 'F1 - F24', desc: 'Function keys' }
+                    ]
+                },
+                {
+                    title: '🔗 Key Combinations',
+                    items: [
+                        { key: 'CTRL C', desc: 'Copy' },
+                        { key: 'CTRL V', desc: 'Paste' },
+                        { key: 'CTRL X', desc: 'Cut' },
+                        { key: 'CTRL Z', desc: 'Undo' },
+                        { key: 'CTRL ALT DELETE', desc: 'Task Manager' },
+                        { key: 'ALT TAB', desc: 'Switch windows' },
+                        { key: 'ALT F4', desc: 'Close window' },
+                        { key: 'GUI R', desc: 'Open Run (Windows)' }
+                    ]
+                },
+                {
+                    title: '🔄 Other',
+                    items: [
+                        { key: 'REPEAT N', desc: 'Repeat previous command' },
+                        { key: 'KEYDOWN/KEYUP', desc: 'Hold/Release key' },
+                        { key: 'CAPSLOCK, NUMLOCK', desc: 'Lock keys' }
+                    ]
+                }
+            ]
+        };
+
+        function initCheatsheet() {
+            const data = cheatsheetData[currentLang];
+            const html = data.map(category => `
+                <div class="cheat-category">
+                    <div class="cheat-category-title">${category.title}</div>
+                    ${category.items.map(item => `
+                        <div class="cheat-item" onclick="addCommand('${item.key.split(' ')[0]}')">
+                            <div class="cheat-key">${item.key}</div>
+                            <div class="cheat-desc">${item.desc}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            `).join('');
+            document.getElementById('cheatContent').innerHTML = html;
+        }
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'ru' ? 'en' : 'ru';
+            updateLanguage();
+        }
+
+        function updateLanguage() {
+            const labels = {
+                ru: { cmdTitle: 'Команды', codeTitle: 'Код', cheatTitle: 'Шпаргалка', paramLabel: 'Параметр:', langBtn: '🌐 РУССКИЙ', emptyText: 'Начни добавлять команды...', clearMsg: 'Очистить весь код?', notifCopied: '📋 Скопировано', notifDownloaded: '⬇️ Файл скачан', notifCleared: '🗑️ Очищено', notifDeleted: '❌ Удалено' },
+                en: { cmdTitle: 'Commands', codeTitle: 'Code', cheatTitle: 'Cheatsheet', paramLabel: 'Parameter:', langBtn: '🌐 ENGLISH', emptyText: 'Start adding commands...', clearMsg: 'Clear all code?', notifCopied: '📋 Copied', notifDownloaded: '⬇️ Downloaded', notifCleared: '🗑️ Cleared', notifDeleted: '❌ Deleted' }
+            };
+            const l = labels[currentLang];
+            document.getElementById('cmdTitle').textContent = l.cmdTitle;
+            document.getElementById('codeTitle').textContent = l.codeTitle;
+            document.getElementById('cheatTitle').textContent = l.cheatTitle;
+            document.getElementById('paramLabel').textContent = l.paramLabel;
+            document.querySelector('.btn-header').textContent = l.langBtn;
+            window.langLabels = l;
+            initCheatsheet();
+            updateDisplay();
+        }
+
+        window.langLabels = {
+            cmdTitle: 'Команды',
+            codeTitle: 'Код',
+            cheatTitle: 'Шпаргалка',
+            paramLabel: 'Параметр:',
+            langBtn: '🌐 РУССКИЙ',
+            emptyText: 'Начни добавлять команды...',
+            clearMsg: 'Очистить весь код?',
+            notifCopied: '📋 Скопировано',
+            notifDownloaded: '⬇️ Файл скачан',
+            notifCleared: '🗑️ Очищено',
+            notifDeleted: '❌ Удалено'
+        };
+
+        function addCommand(command) {
+            const input = document.getElementById('customInput');
+            const value = input.value.trim();
+            
+            let fullCommand = command;
+            if (value && !['ENTER', 'TAB', 'ESC', 'SPACE', 'DELETE', 'BACKSPACE', 'UPARROW', 'DOWNARROW', 'LEFTARROW', 'RIGHTARROW', 'HOME', 'END', 'PAGEUP', 'PAGEDOWN', 'CAPSLOCK', 'NUMLOCK', 'PRINTSCREEN', 'PAUSE', 'INSERT'].includes(command)) {
+                fullCommand = `${command} ${value}`;
+            }
+            
+            codeLines.push(fullCommand);
+            input.value = '';
+            updateDisplay();
+            showNotification(`✅ ${command}`);
+        }
+
+        function addCustom() {
+            const input = document.getElementById('customInput');
+            if (input.value.trim()) {
+                codeLines.push(input.value);
+                input.value = '';
+                updateDisplay();
+                showNotification('✅ Added');
+            }
+        }
+
+        function deleteLineByIndex(index) {
+            codeLines.splice(index, 1);
+            updateDisplay();
+            showNotification(window.langLabels.notifDeleted);
+        }
+
+        function updateDisplay() {
+            const display = document.getElementById('codeDisplay');
+            
+            if (codeLines.length === 0) {
+                display.innerHTML = `<span class="code-empty">${window.langLabels.emptyText}</span>`;
+                return;
+            }
+
+            display.innerHTML = '// Ducky Script Code\n' + codeLines
+                .map((line, index) => {
+                    return `<div class="code-line">${line}<button class="btn-delete-line" onclick="deleteLineByIndex(${index})">✕</button></div>`;
+                })
+                .join('');
+        }
+
+        function copyToClipboard() {
+            const code = codeLines.join('\n');
+            navigator.clipboard.writeText(code).then(() => {
+                showNotification(window.langLabels.notifCopied);
+            });
+        }
+
+        function downloadCode() {
+            const code = codeLines.join('\n');
+            const element = document.createElement('a');
+            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(code));
+            element.setAttribute('download', 'ducky_script.txt');
+            element.style.display = 'none';
+            document.body.appendChild(element);
+            element.click();
+            document.body.removeChild(element);
+            showNotification(window.langLabels.notifDownloaded);
+        }
+
+        function clearCode() {
+            if (codeLines.length > 0 && confirm(window.langLabels.clearMsg)) {
+                codeLines = [];
+                updateDisplay();
+                showNotification(window.langLabels.notifCleared);
+            }
+        }
+
+        function showNotification(message) {
+            const notif = document.getElementById('notification');
+            notif.textContent = message;
+            notif.classList.add('show');
+            setTimeout(() => {
+                notif.classList.remove('show');
+            }, 2000);
+        }
+
+        document.getElementById('customInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                addCustom();
+            }
+        });
+
+        initCheatsheet();
+    </script>
+</body>
+</html>
+ы
